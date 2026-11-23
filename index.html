@@ -68,6 +68,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 button.itxt{cursor:pointer}
 .itxt .n{font-size:16px}
 .itxt .m{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pill-live{font-size:12px;font-weight:700;color:#07503F;background:#DDF0EA;padding:4px 10px;border-radius:999px}
+.banner{margin:4px 16px 0;padding:10px 14px;background:#FCE8C8;color:#7A3E00;border-radius:12px;font-size:13px;line-height:1.5}
 .err{margin:24px 20px;padding:16px;background:#FBE0DC;color:#9C2117;border-radius:14px;font-size:14px;line-height:1.6}
 </style>
 </head>
@@ -81,6 +83,11 @@ button.itxt{cursor:pointer}
   var $app = document.getElementById('app');
   var DATA = null;
   var KEY = 'heungupbus.v1';
+  // Apps Script 웹 앱 주소(…/exec)를 따옴표 안에 넣으면 실시간 데이터를 씁니다.
+  // 비워 두면 mock.json(예시 데이터)을 씁니다.
+  var API_URL = '';
+  var REFRESH_MS = 30000; // 30초마다 새로고침 (서버가 20초 동안은 같은 결과를 돌려줌)
+  var notice = '';
 
   var SPEEDS = {
     slow:   { label: '느림', mpm: 58 },
@@ -152,7 +159,7 @@ button.itxt{cursor:pointer}
     }
     var buffer = state.buffer;
 
-    var dest = DATA.destinations.indexOf(state.q.trim()) >= 0 ? state.q.trim() : '';
+    var dest = (DATA.destinations || []).indexOf(state.q.trim()) >= 0 ? state.q.trim() : '';
 
     function statusOf(a) {
       if (a - walk - buffer >= 0) return 'ok';
@@ -161,7 +168,7 @@ button.itxt{cursor:pointer}
     }
 
     var routes = DATA.routes.map(function (r) {
-      var serves = !dest || r.after.some(function (a) { return a.name === dest; });
+      var serves = !dest || (r.after || []).some(function (a) { return a.name === dest; });
       return { r: r, serves: serves };
     });
 
@@ -193,7 +200,8 @@ button.itxt{cursor:pointer}
     var d = DATA;
     var h = '';
     h += '<header class="top"><div><div class="logo">흥업빠스</div><div class="sub">' + c.clock + ' 기준</div></div>' +
-         (d.isMock ? '<span class="pill-ex">예시 데이터</span>' : '') + '</header>';
+         (d.isMock ? '<span class="pill-ex">예시 데이터</span>' : '<span class="pill-live">실시간</span>') + '</header>';
+    if (notice) h += '<div class="banner">' + esc(notice) + '</div>';
     h += '<main class="stack">';
 
     // 내 정류장 카드
@@ -205,15 +213,17 @@ button.itxt{cursor:pointer}
       var later = r.arrivals.slice(1).map(function (a) { return a + '분'; }).join(' · ');
       h += '<button class="row" data-act="open" data-val="' + esc(r.id) + '" style="opacity:' + (x.serves ? 1 : 0.5) + '" aria-label="' + esc(r.id) + '번 버스 경유 정류장 보기">' +
            '<span class="badge">' + esc(r.id) + '</span>' +
-           '<span class="mid"><span class="big"><b>' + a0 + '</b><span>분 뒤 도착</span></span>' +
+           '<span class="mid"><span class="big">' + (a0 <= 0 ? '<b>곧</b><span>도착</span>' : '<b>' + a0 + '</b><span>분 뒤 도착</span>') + '</span>' +
            '<span class="s13 muted">' + r.away + '정류장 전' + (later ? ' · 다음 ' + later : '') + '</span></span>' +
            (state.located && x.serves ? '<span class="st" style="background:' + st.bg + ';color:' + st.fg + '">' + st.label + '</span>' : '') +
            (!x.serves ? '<span class="s12 muted" style="flex:none">목적지 아님</span>' : '') +
            ICON_CHEV + '</button>';
     });
+    if (!c.routes.length) h += '<div style="padding:16px;border-top:1px solid #E6EBE7" class="s13 muted">지금 이 정류장에 도착 예정인 버스가 없어요.</div>';
     h += '</section>';
 
-    // 목적지 카드
+    // 목적지 카드 (목적지 목록이 있을 때만)
+    if (d.destinations && d.destinations.length) {
     var q = state.q.trim();
     var chips = d.destinations.filter(function (n) { return !q || n.indexOf(q) >= 0; });
     h += '<section class="card"><label class="lbl" for="dest">목적지 (선택)</label>' +
@@ -227,6 +237,7 @@ button.itxt{cursor:pointer}
     });
     if (!chips.length) h += '<span class="s13 muted">등록된 목적지만 검색돼요.</span>';
     h += '</div>' + (c.dest ? '<span class="s13 muted">이 목적지로 가는 버스만 추천해요.</span>' : '') + '</section>';
+    }
 
     // 내 위치 / 출발 권장
     if (!state.located) {
@@ -253,7 +264,7 @@ button.itxt{cursor:pointer}
       h += '<span class="l">' + esc(b.r.id) + '번 · ' + b.arr + '분 뒤 정류장 도착 (' + fmt(c.nowMin + b.arr) + ')</span>';
       h += '<span class="c">도보 ' + c.walk + '분 + 여유 ' + c.buffer + '분 = ' + (c.walk + c.buffer) + '분 전에 출발해야 해요</span>';
       if (c.dest) {
-        var stop = b.r.after.filter(function (a) { return a.name === c.dest; })[0];
+        var stop = (b.r.after || []).filter(function (a) { return a.name === c.dest; })[0];
         if (stop) h += '<span class="d">' + esc(c.dest) + ' 도착 예상 ' + fmt(c.nowMin + b.arr + stop.min) + '</span>';
       }
       var missed = [];
@@ -306,6 +317,7 @@ button.itxt{cursor:pointer}
   function routeHTML(c) {
     var d = DATA;
     var x = c.routes.filter(function (y) { return y.r.id === state.routeId; })[0] || c.routes[0];
+    if (!x) { state.screen = 'home'; return homeHTML(c); }
     var r = x.r;
     var cand = c.cands.filter(function (k) { return k.r.id === r.id; })[0];
     var boardArr = cand ? cand.arr : r.arrivals[0];
@@ -319,14 +331,14 @@ button.itxt{cursor:pointer}
     }
 
     var items = [];
-    r.before.forEach(function (n, i) {
+    (r.before || []).forEach(function (n, i) {
       var hasBus = i === r.before.length - r.away;
       items.push({ name: n, tap: false, meta: hasBus ? '버스 위치 · 내 정류장까지 ' + r.away + '정류장' : '지나온 정류장',
         dot: hasBus ? 18 : 10, bg: hasBus ? '#0B6E5B' : '#B7C2BC', w: hasBus ? 700 : 500, col: hasBus ? '#13211C' : '#5B6B64' });
     });
     items.push({ name: d.stop.name, tap: false, meta: '내 정류장 · ' + fmt(c.nowMin + boardArr) + ' 도착',
       dot: 18, bg: '#13211C', w: 700, col: '#13211C' });
-    r.after.forEach(function (a) {
+    (r.after || []).forEach(function (a) {
       var isDest = c.dest === a.name;
       items.push({ name: a.name, tap: true, val: isDest ? '' : a.name,
         meta: '+' + a.min + '분 · ' + fmt(c.nowMin + boardArr + a.min) + ' 도착' + (isDest ? ' · 목적지' : ''),
@@ -335,13 +347,13 @@ button.itxt{cursor:pointer}
 
     var destNote = '';
     if (c.dest) {
-      var s = r.after.filter(function (a) { return a.name === c.dest; })[0];
+      var s = (r.after || []).filter(function (a) { return a.name === c.dest; })[0];
       destNote = s ? c.dest + '까지 탑승 ' + s.min + '분 · ' + fmt(c.nowMin + boardArr + s.min) + ' 도착 예정'
                    : '이 노선은 ' + c.dest + '에 가지 않아요.';
     }
 
     var h = '<div class="rtop"><button class="iconbtn" data-act="home" aria-label="목록으로 돌아가기">' + ICON_BACK + '</button>' +
-            '<div style="display:flex;flex-direction:column;min-width:0"><span class="t1">' + esc(r.id) + '번</span><span class="s13 muted">' + esc(r.dir) + '</span></div>' +
+            '<div style="display:flex;flex-direction:column;min-width:0"><span class="t1">' + esc(r.id) + '번</span><span class="s13 muted">' + esc(r.dir || '') + '</span></div>' +
             (d.isMock ? '<span class="pill-ex ml">예시 데이터</span>' : '') + '</div>';
     h += '<main class="stack">';
     h += '<section class="card" style="gap:4px"><span class="s13 muted">' + esc(d.stop.name) + ' 도착</span>' +
@@ -349,6 +361,10 @@ button.itxt{cursor:pointer}
          '<span style="font-size:14px;line-height:1.5">' + sumSub + '</span></section>';
     if (destNote) h += '<section class="destnote">' + esc(destNote) + '</section>';
 
+    var hasStops = (r.before || []).length || (r.after || []).length;
+    if (!hasStops) {
+      h += '<section class="card"><h2>경유 정류장</h2><span class="note">경유 정류장 정보는 준비 중이에요.</span></section>';
+    } else {
     h += '<section class="card" style="gap:6px;padding-bottom:10px"><div style="display:flex;flex-direction:column;gap:2px;padding-bottom:6px">' +
          '<h2>경유 정류장</h2><span class="s13 muted">내 정류장 뒤의 정류장을 누르면 목적지로 정해져요.</span></div>';
     items.forEach(function (it, i) {
@@ -361,6 +377,7 @@ button.itxt{cursor:pointer}
       h += '</div>';
     });
     h += '</section>';
+    }
     if (d.isMock) h += '<span class="s12 muted" style="line-height:1.5;padding:0 4px">정류장 이름과 시간은 화면을 보여 주기 위한 예시입니다. 실제 노선과 다를 수 있어요.</span>';
     return h + '</main>';
   }
@@ -425,13 +442,44 @@ button.itxt{cursor:pointer}
     }
   });
 
-  // ---------- 시작 ----------
-  fetch('mock.json', { cache: 'no-store' })
-    .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
-    .then(function (json) { DATA = json; render(); })
-    .catch(function () {
-      $app.innerHTML = '<div class="err">데이터를 불러오지 못했어요.<br>mock.json 파일이 index.html과 같은 곳에 있는지 확인해 주세요. 파일을 더블클릭해서 연 경우에는 데이터가 읽히지 않으니, 배포 주소로 열어 주세요.</div>';
+  // ---------- 데이터 불러오기 ----------
+  function fetchJson(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (res) {
+      if (!res.ok) throw new Error(res.status);
+      return res.json();
     });
+  }
+  function loadMock() { return fetchJson('mock.json'); }
+  function loadLive() {
+    return fetchJson(API_URL).then(function (j) {
+      if (!j || j.ok !== true) throw new Error((j && j.error) || 'bad response');
+      return j;
+    });
+  }
+  function load(first) {
+    var p;
+    if (!API_URL) {
+      p = loadMock();
+    } else {
+      p = loadLive().then(function (j) { notice = ''; return j; }).catch(function () {
+        if (DATA && !DATA.isMock) { notice = '실시간 정보를 새로 가져오지 못했어요. 마지막으로 받은 정보를 보여 줘요.'; return DATA; }
+        notice = '실시간 정보를 가져오지 못해 예시 데이터를 보여 주고 있어요.';
+        return loadMock();
+      });
+    }
+    return p.then(function (json) { DATA = json; render(); }).catch(function () {
+      if (first) {
+        $app.innerHTML = '<div class="err">데이터를 불러오지 못했어요.<br>mock.json 파일이 index.html과 같은 곳에 있는지 확인해 주세요. 파일을 더블클릭해서 연 경우에는 데이터가 읽히지 않으니, 배포 주소로 열어 주세요.</div>';
+      }
+    });
+  }
+
+  // ---------- 시작 ----------
+  load(true);
+  if (API_URL) {
+    setInterval(function () { if (!document.hidden) load(false); }, REFRESH_MS);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) load(false); });
+  }
 })();
 </script>
 </body>

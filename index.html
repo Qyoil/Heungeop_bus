@@ -1,12 +1,438 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>흥업빠스</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>흥업빠스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#13211C; --muted:#5B6B64; --ground:#F2F4F1; --card:#fff;
+  --line:#DDE3DF; --line2:#E6EBE7; --accent:#0B6E5B; --warn:#B45309;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:'Noto Sans KR','Malgun Gothic',system-ui,sans-serif}
+button{font-family:inherit;color:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#app{max-width:480px;margin:0 auto;min-height:100dvh}
+.top{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 8px}
+.logo{font-size:24px;font-weight:900;letter-spacing:-0.02em}
+.sub{font-size:13px;color:var(--muted)}
+.pill-ex{font-size:12px;font-weight:700;color:#7A3E00;background:#FCE8C8;padding:4px 10px;border-radius:999px}
+.stack{display:flex;flex-direction:column;gap:12px;padding:8px 16px 32px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.card h2{margin:0;font-size:17px;font-weight:700}
+.muted{color:var(--muted)}
+.s12{font-size:12px}.s13{font-size:13px}
+.stophead{display:flex;align-items:center;gap:8px;padding:12px 16px 10px}
+.stophead h2{margin:0;font-size:17px;font-weight:700}
+.ml{margin-left:auto}
+.row{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;min-height:68px;background:transparent;border:0;border-top:1px solid var(--line2);text-align:left;cursor:pointer}
+.badge{flex:none;min-width:56px;height:38px;padding:0 8px;display:flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;border-radius:10px;font-size:16px;font-weight:700}
+.mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.big{display:flex;align-items:baseline;gap:4px}
+.big b{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.big span{font-size:15px;font-weight:500}
+.st{flex:none;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.inputbox{display:flex;align-items:center;gap:4px;background:var(--ground);border-radius:12px;padding:0 4px 0 12px;height:48px}
+.inputbox input{flex:1;min-width:0;border:0;background:transparent;font-family:inherit;font-size:16px;color:var(--ink);height:44px}
+.iconbtn{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:transparent;border:0;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer}
+.primary{height:52px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;border:0;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer}
+.hero{background:var(--ink);color:#fff;border-radius:18px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px}
+.hero .k{font-size:13px;font-weight:500;color:#B9D4CB}
+.hero .t{font-size:28px;font-weight:900;letter-spacing:-0.02em;line-height:1.25}
+.hero .l{font-size:15px;font-weight:500}
+.hero .c{font-size:13px;color:#B9D4CB}
+.hero .d{font-size:14px;font-weight:700;color:#FFD9A0}
+.hero button{margin-top:6px;height:48px;background:#fff;color:var(--ink);border:0;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer}
+.ghost{flex:none;min-height:44px;padding:0 12px;background:transparent;border:1px solid #CBD5CF;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer}
+.seg{display:flex;gap:3px;background:var(--ground);border-radius:12px;padding:3px}
+.seg button{flex:1;min-height:44px;border:0;border-radius:10px;font-size:14px;cursor:pointer;background:transparent;color:var(--muted);font-weight:500}
+.seg button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(19,33,28,.18)}
+.lbl{font-size:13px;font-weight:700;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px}
+.note{font-size:13px;color:var(--muted);line-height:1.5}
+.rtop{display:flex;align-items:center;gap:4px;padding:14px 16px 8px 8px}
+.rtop .t1{font-size:22px;font-weight:900;letter-spacing:-0.02em}
+.sum{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.destnote{background:#FCE8C8;border-radius:14px;padding:12px 16px;font-size:14px;font-weight:700;color:#7A3E00;line-height:1.5}
+.item{display:flex;gap:12px;align-items:stretch;min-height:56px}
+.rail{flex:none;width:24px;position:relative;display:flex;align-items:center;justify-content:center}
+.rail i{position:absolute;left:11px;width:2px;background:#CBD5CF}
+.rail b{position:relative;border-radius:50%;border:3px solid #fff}
+.itxt{flex:1;min-width:0;align-self:center;display:flex;flex-direction:column;gap:1px;padding:4px 0;min-height:44px;justify-content:center;text-align:left;background:transparent;border:0}
+button.itxt{cursor:pointer}
+.itxt .n{font-size:16px}
+.itxt .m{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.err{margin:24px 20px;padding:16px;background:#FBE0DC;color:#9C2117;border-radius:14px;font-size:14px;line-height:1.6}
+</style>
 </head>
 <body>
-  <h1>흥업빠스</h1>
-  <p>배포 테스트 중입니다.</p>
+<div id="app"><p class="note" style="padding:24px">불러오는 중…</p></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var $app = document.getElementById('app');
+  var DATA = null;
+  var KEY = 'heungupbus.v1';
+
+  var SPEEDS = {
+    slow:   { label: '느림', mpm: 58 },
+    normal: { label: '보통', mpm: 75 },
+    fast:   { label: '빠름', mpm: 92 }
+  };
+  var DEMO_DIST = 380; // 정류장 좌표가 없을 때 쓰는 예시 거리(m)
+  var DETOUR = 1.3;    // 직선거리 -> 실제 도보 거리 보정 계수
+
+  var state = {
+    screen: 'home', routeId: null,
+    located: false, mode: 'demo', userLoc: null, manualMin: 7, msg: '',
+    speed: 'normal', buffer: 2, q: ''
+  };
+
+  // 저장된 설정 불러오기 (걸음 속도, 여유 시간, 목적지)
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+    if (SPEEDS[saved.speed]) state.speed = saved.speed;
+    if ([0, 2, 5].indexOf(saved.buffer) >= 0) state.buffer = saved.buffer;
+    if (typeof saved.q === 'string') state.q = saved.q;
+  } catch (e) {}
+
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ speed: state.speed, buffer: state.buffer, q: state.q }));
+    } catch (e) {}
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function fmt(m) { return pad(Math.floor(m / 60) % 24) + ':' + pad(m % 60); }
+
+  function haversine(lat1, lng1, lat2, lng2) {
+    var R = 6371000, rad = Math.PI / 180;
+    var dLat = (lat2 - lat1) * rad, dLng = (lng2 - lng1) * rad;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.sqrt(a));
+  }
+
+  var ST = {
+    ok:    { label: '탈 수 있음',   bg: '#DDF0EA', fg: '#07503F' },
+    hurry: { label: '서둘러야 함', bg: '#FCE8C8', fg: '#7A3E00' },
+    miss:  { label: '놓침',         bg: '#FBE0DC', fg: '#9C2117' }
+  };
+
+  // ---------- 계산 ----------
+  function compute() {
+    var now = new Date();
+    var nowMin = now.getHours() * 60 + now.getMinutes();
+    var stop = DATA.stop;
+
+    var dist = DEMO_DIST;
+    if (state.mode === 'gps' && state.userLoc && stop.lat != null && stop.lng != null) {
+      dist = haversine(state.userLoc.lat, state.userLoc.lng, stop.lat, stop.lng);
+    }
+    var walk;
+    if (state.mode === 'manual') {
+      walk = state.manualMin;
+    } else if (dist < 25) {
+      walk = 0;
+    } else {
+      walk = Math.ceil((dist * DETOUR) / SPEEDS[state.speed].mpm);
+    }
+    var buffer = state.buffer;
+
+    var dest = DATA.destinations.indexOf(state.q.trim()) >= 0 ? state.q.trim() : '';
+
+    function statusOf(a) {
+      if (a - walk - buffer >= 0) return 'ok';
+      if (a - walk >= 0) return 'hurry';
+      return 'miss';
+    }
+
+    var routes = DATA.routes.map(function (r) {
+      var serves = !dest || r.after.some(function (a) { return a.name === dest; });
+      return { r: r, serves: serves };
+    });
+
+    var cands = [];
+    routes.forEach(function (x) {
+      if (!x.serves) return;
+      for (var i = 0; i < x.r.arrivals.length; i++) {
+        if (x.r.arrivals[i] - walk - buffer >= 0) { cands.push({ r: x.r, arr: x.r.arrivals[i] }); break; }
+      }
+    });
+    cands.sort(function (a, b) { return a.arr - b.arr; });
+    var best = cands[0] || null;
+
+    return {
+      nowMin: nowMin, clock: fmt(nowMin), dist: dist, walk: walk, buffer: buffer,
+      dest: dest, routes: routes, cands: cands, best: best, statusOf: statusOf
+    };
+  }
+
+  // ---------- 아이콘 ----------
+  var ICON_STAR = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.15 1 5.85L12 16.9l-5.25 2.8 1-5.85L3.5 9.7l5.9-.9L12 3.5z" fill="#0B6E5B"/></svg>';
+  var ICON_CHEV = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6B64" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M9 6l6 6-6 6"/></svg>';
+  var ICON_X = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6B64" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  var ICON_LOC = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>';
+  var ICON_BACK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#13211C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+
+  // ---------- 홈 화면 ----------
+  function homeHTML(c) {
+    var d = DATA;
+    var h = '';
+    h += '<header class="top"><div><div class="logo">흥업빠스</div><div class="sub">' + c.clock + ' 기준</div></div>' +
+         (d.isMock ? '<span class="pill-ex">예시 데이터</span>' : '') + '</header>';
+    h += '<main class="stack">';
+
+    // 내 정류장 카드
+    h += '<section class="card" style="padding:4px 0 0;overflow:hidden;gap:0">';
+    h += '<div class="stophead">' + ICON_STAR + '<h2>' + esc(d.stop.name) + '</h2><span class="muted s12 ml">내 정류장</span></div>';
+    c.routes.forEach(function (x) {
+      var r = x.r, a0 = r.arrivals[0];
+      var st = ST[c.statusOf(a0)];
+      var later = r.arrivals.slice(1).map(function (a) { return a + '분'; }).join(' · ');
+      h += '<button class="row" data-act="open" data-val="' + esc(r.id) + '" style="opacity:' + (x.serves ? 1 : 0.5) + '" aria-label="' + esc(r.id) + '번 버스 경유 정류장 보기">' +
+           '<span class="badge">' + esc(r.id) + '</span>' +
+           '<span class="mid"><span class="big"><b>' + a0 + '</b><span>분 뒤 도착</span></span>' +
+           '<span class="s13 muted">' + r.away + '정류장 전' + (later ? ' · 다음 ' + later : '') + '</span></span>' +
+           (state.located && x.serves ? '<span class="st" style="background:' + st.bg + ';color:' + st.fg + '">' + st.label + '</span>' : '') +
+           (!x.serves ? '<span class="s12 muted" style="flex:none">목적지 아님</span>' : '') +
+           ICON_CHEV + '</button>';
+    });
+    h += '</section>';
+
+    // 목적지 카드
+    var q = state.q.trim();
+    var chips = d.destinations.filter(function (n) { return !q || n.indexOf(q) >= 0; });
+    h += '<section class="card"><label class="lbl" for="dest">목적지 (선택)</label>' +
+         '<div class="inputbox"><input id="dest" type="text" value="' + esc(state.q) + '" placeholder="어디로 가세요?" autocomplete="off">' +
+         (state.q ? '<button class="iconbtn" data-act="clearq" aria-label="목적지 지우기">' + ICON_X + '</button>' : '') + '</div>' +
+         '<div class="chips">';
+    chips.forEach(function (n) {
+      var on = c.dest === n;
+      h += '<button class="chip" data-act="pick" data-val="' + esc(n) + '" aria-pressed="' + on + '" style="border:1px solid ' + (on ? '#0B6E5B' : '#CBD5CF') +
+           ';background:' + (on ? '#0B6E5B' : '#fff') + ';color:' + (on ? '#fff' : '#13211C') + '">' + esc(n) + '</button>';
+    });
+    if (!chips.length) h += '<span class="s13 muted">등록된 목적지만 검색돼요.</span>';
+    h += '</div>' + (c.dest ? '<span class="s13 muted">이 목적지로 가는 버스만 추천해요.</span>' : '') + '</section>';
+
+    // 내 위치 / 출발 권장
+    if (!state.located) {
+      h += '<section class="card" style="gap:12px"><h2>내 위치로 출발 시간 알아보기</h2>' +
+           '<p class="note" style="margin:0;font-size:14px;line-height:1.55">지금 있는 곳을 넣으면 정류장까지 걷는 시간을 더해서, 몇 분 뒤에 나가야 버스를 탈 수 있는지 알려드려요.</p>' +
+           '<button class="primary" data-act="locate">' + ICON_LOC + '내 위치 넣기</button>' +
+           (state.msg ? '<span class="s13" style="color:#7A3E00">' + esc(state.msg) + '</span>' : '') +
+           (d.stop.lat == null ? '<span class="s12 muted">정류장 좌표가 아직 없어서, 누르면 정류장에서 직선 ' + DEMO_DIST + 'm인 예시 위치가 들어가요.</span>' : '') +
+           '</section>';
+    } else {
+      h += heroHTML(c);
+      h += settingsHTML(c);
+    }
+
+    h += '</main>';
+    return h;
+  }
+
+  function heroHTML(c) {
+    var h = '<section class="hero"><span class="k">출발 권장</span>';
+    if (c.best) {
+      var b = c.best, slack = b.arr - c.walk - c.buffer;
+      h += '<span class="t">' + (slack === 0 ? '지금 바로 출발하세요' : slack + '분 뒤에 출발하세요') + '</span>';
+      h += '<span class="l">' + esc(b.r.id) + '번 · ' + b.arr + '분 뒤 정류장 도착 (' + fmt(c.nowMin + b.arr) + ')</span>';
+      h += '<span class="c">도보 ' + c.walk + '분 + 여유 ' + c.buffer + '분 = ' + (c.walk + c.buffer) + '분 전에 출발해야 해요</span>';
+      if (c.dest) {
+        var stop = b.r.after.filter(function (a) { return a.name === c.dest; })[0];
+        if (stop) h += '<span class="d">' + esc(c.dest) + ' 도착 예상 ' + fmt(c.nowMin + b.arr + stop.min) + '</span>';
+      }
+      var missed = [];
+      c.routes.forEach(function (x) {
+        if (!x.serves) return;
+        x.r.arrivals.forEach(function (a) { if (a < b.arr) missed.push({ id: x.r.id, a: a }); });
+      });
+      missed.sort(function (p, q2) { return p.a - q2.a; });
+      if (missed.length) h += '<span class="c">놓친 버스: ' + missed.map(function (m) { return esc(m.id) + '번 ' + m.a + '분 뒤'; }).join(', ') + '</span>';
+      h += '<button data-act="open" data-val="' + esc(b.r.id) + '">' + esc(b.r.id) + '번 경유 정류장 보기</button>';
+    } else {
+      h += '<span class="t" style="font-size:22px">탈 수 있는 버스가 없어요</span>' +
+           '<span class="c" style="font-size:14px;line-height:1.5">' +
+           (c.dest ? '이 목적지로 가는 버스 중에는 지금 걸음으로 탈 수 있는 버스가 없어요.' : '걸음 속도나 정류장 여유 시간을 바꿔 보세요.') + '</span>';
+    }
+    return h + '</section>';
+  }
+
+  function segHTML(group, opts, cur) {
+    return '<div class="seg" role="group">' + opts.map(function (o) {
+      var on = String(cur) === String(o.v);
+      return '<button class="' + (on ? 'on' : '') + '" data-act="' + group + '" data-val="' + o.v + '" aria-pressed="' + on + '">' + o.l + '</button>';
+    }).join('') + '</div>';
+  }
+
+  function settingsHTML(c) {
+    var label, sub;
+    if (state.mode === 'manual') { label = '직접 입력한 시간'; sub = '도보 ' + c.walk + '분'; }
+    else if (state.mode === 'gps') { label = '내 위치'; sub = '정류장까지 직선 ' + Math.round(c.dist) + 'm · 도보 ' + c.walk + '분'; }
+    else { label = '내 위치 (예시)'; sub = '정류장까지 직선 ' + DEMO_DIST + 'm · 도보 ' + c.walk + '분'; }
+
+    var h = '<section class="card" style="gap:14px">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
+      '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:700">' + label + '</span><span class="s13 muted">' + sub + '</span></div>' +
+      '<button class="ghost" data-act="clearloc">위치 지우기</button></div>';
+    if (state.msg) h += '<span class="s13" style="color:#7A3E00;line-height:1.5">' + esc(state.msg) + '</span>';
+    if (state.mode === 'manual') {
+      h += '<div class="field"><label class="lbl" for="manual">정류장까지 걸리는 시간 (분)</label>' +
+           '<div class="inputbox"><input id="manual" type="number" inputmode="numeric" min="0" max="60" value="' + state.manualMin + '"></div></div>';
+    } else {
+      h += '<div class="field"><span class="lbl">걸음 속도</span>' +
+           segHTML('speed', [{ v: 'slow', l: '느림' }, { v: 'normal', l: '보통' }, { v: 'fast', l: '빠름' }], state.speed) + '</div>';
+    }
+    h += '<div class="field"><span class="lbl">정류장 미리 도착 여유</span>' +
+         segHTML('buffer', [{ v: 0, l: '0분' }, { v: 2, l: '2분' }, { v: 5, l: '5분' }], state.buffer) + '</div>';
+    return h + '</section>';
+  }
+
+  // ---------- 경유 정류장 화면 ----------
+  function routeHTML(c) {
+    var d = DATA;
+    var x = c.routes.filter(function (y) { return y.r.id === state.routeId; })[0] || c.routes[0];
+    var r = x.r;
+    var cand = c.cands.filter(function (k) { return k.r.id === r.id; })[0];
+    var boardArr = cand ? cand.arr : r.arrivals[0];
+
+    var sumSub = '가장 가까운 버스 기준이에요. 내 위치를 넣으면 출발 시각을 알려드려요.';
+    if (state.located && cand) {
+      var slack = cand.arr - c.walk - c.buffer;
+      sumSub = slack === 0 ? '지금 바로 출발하면 이 버스를 탈 수 있어요.' : slack + '분 뒤에 출발하면 이 버스를 탈 수 있어요.';
+    } else if (state.located) {
+      sumSub = '지금 걸음 속도로는 이 노선에서 탈 수 있는 버스가 없어요.';
+    }
+
+    var items = [];
+    r.before.forEach(function (n, i) {
+      var hasBus = i === r.before.length - r.away;
+      items.push({ name: n, tap: false, meta: hasBus ? '버스 위치 · 내 정류장까지 ' + r.away + '정류장' : '지나온 정류장',
+        dot: hasBus ? 18 : 10, bg: hasBus ? '#0B6E5B' : '#B7C2BC', w: hasBus ? 700 : 500, col: hasBus ? '#13211C' : '#5B6B64' });
+    });
+    items.push({ name: d.stop.name, tap: false, meta: '내 정류장 · ' + fmt(c.nowMin + boardArr) + ' 도착',
+      dot: 18, bg: '#13211C', w: 700, col: '#13211C' });
+    r.after.forEach(function (a) {
+      var isDest = c.dest === a.name;
+      items.push({ name: a.name, tap: true, val: isDest ? '' : a.name,
+        meta: '+' + a.min + '분 · ' + fmt(c.nowMin + boardArr + a.min) + ' 도착' + (isDest ? ' · 목적지' : ''),
+        dot: isDest ? 18 : 10, bg: isDest ? '#B45309' : '#0B6E5B', w: isDest ? 700 : 500, col: '#13211C' });
+    });
+
+    var destNote = '';
+    if (c.dest) {
+      var s = r.after.filter(function (a) { return a.name === c.dest; })[0];
+      destNote = s ? c.dest + '까지 탑승 ' + s.min + '분 · ' + fmt(c.nowMin + boardArr + s.min) + ' 도착 예정'
+                   : '이 노선은 ' + c.dest + '에 가지 않아요.';
+    }
+
+    var h = '<div class="rtop"><button class="iconbtn" data-act="home" aria-label="목록으로 돌아가기">' + ICON_BACK + '</button>' +
+            '<div style="display:flex;flex-direction:column;min-width:0"><span class="t1">' + esc(r.id) + '번</span><span class="s13 muted">' + esc(r.dir) + '</span></div>' +
+            (d.isMock ? '<span class="pill-ex ml">예시 데이터</span>' : '') + '</div>';
+    h += '<main class="stack">';
+    h += '<section class="card" style="gap:4px"><span class="s13 muted">' + esc(d.stop.name) + ' 도착</span>' +
+         '<span class="sum">' + boardArr + '분 뒤 (' + fmt(c.nowMin + boardArr) + ')</span>' +
+         '<span style="font-size:14px;line-height:1.5">' + sumSub + '</span></section>';
+    if (destNote) h += '<section class="destnote">' + esc(destNote) + '</section>';
+
+    h += '<section class="card" style="gap:6px;padding-bottom:10px"><div style="display:flex;flex-direction:column;gap:2px;padding-bottom:6px">' +
+         '<h2>경유 정류장</h2><span class="s13 muted">내 정류장 뒤의 정류장을 누르면 목적지로 정해져요.</span></div>';
+    items.forEach(function (it, i) {
+      var top = i === 0 ? '50%' : '0', bot = i === items.length - 1 ? '50%' : '0';
+      h += '<div class="item"><div class="rail"><i style="top:' + top + ';bottom:' + bot + '"></i>' +
+           '<b style="width:' + it.dot + 'px;height:' + it.dot + 'px;background:' + it.bg + '"></b></div>';
+      var inner = '<span class="n" style="font-weight:' + it.w + ';color:' + it.col + '">' + esc(it.name) + '</span><span class="m">' + esc(it.meta) + '</span>';
+      h += it.tap ? '<button class="itxt" data-act="setdest" data-val="' + esc(it.val) + '">' + inner + '</button>'
+                  : '<div class="itxt">' + inner + '</div>';
+      h += '</div>';
+    });
+    h += '</section>';
+    if (d.isMock) h += '<span class="s12 muted" style="line-height:1.5;padding:0 4px">정류장 이름과 시간은 화면을 보여 주기 위한 예시입니다. 실제 노선과 다를 수 있어요.</span>';
+    return h + '</main>';
+  }
+
+  // ---------- 그리기 ----------
+  function render() {
+    if (!DATA) return;
+    var a = document.activeElement;
+    var fid = a && (a.id === 'dest' || a.id === 'manual') ? a.id : null;
+    var pos = fid ? a.selectionStart : null;
+    var y = window.scrollY;
+
+    var c = compute();
+    $app.innerHTML = state.screen === 'route' ? routeHTML(c) : homeHTML(c);
+
+    if (fid) {
+      var el = document.getElementById(fid);
+      if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (e) {} }
+    }
+    window.scrollTo(0, y);
+  }
+
+  // ---------- 위치 ----------
+  function toManual(msg) {
+    state.mode = 'manual'; state.located = true; state.msg = msg; render();
+  }
+  function locate() {
+    var s = DATA.stop;
+    if (s.lat == null || s.lng == null) { state.mode = 'demo'; state.located = true; state.msg = ''; render(); return; }
+    if (!navigator.geolocation) { toManual('이 브라우저에서는 위치를 쓸 수 없어요. 걸리는 시간을 직접 입력해 주세요.'); return; }
+    state.msg = '위치를 확인하는 중이에요…'; render();
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      state.userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      state.mode = 'gps'; state.located = true; state.msg = ''; render();
+    }, function () {
+      toManual('위치 권한이 꺼져 있거나 위치를 가져오지 못했어요. 걸리는 시간을 직접 입력해 주세요.');
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+  }
+
+  // ---------- 이벤트 ----------
+  $app.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-act]');
+    if (!t) return;
+    var act = t.getAttribute('data-act'), val = t.getAttribute('data-val');
+    if (act === 'open') { state.screen = 'route'; state.routeId = val; render(); window.scrollTo(0, 0); }
+    else if (act === 'home') { state.screen = 'home'; render(); window.scrollTo(0, 0); }
+    else if (act === 'pick') { state.q = (state.q === val ? '' : val); save(); render(); }
+    else if (act === 'setdest') { state.q = val; save(); render(); }
+    else if (act === 'clearq') { state.q = ''; save(); render(); }
+    else if (act === 'locate') { locate(); }
+    else if (act === 'clearloc') { state.located = false; state.msg = ''; state.mode = 'demo'; render(); }
+    else if (act === 'speed') { state.speed = val; save(); render(); }
+    else if (act === 'buffer') { state.buffer = Number(val); save(); render(); }
+  });
+
+  $app.addEventListener('input', function (e) {
+    if (e.target.id === 'dest') { state.q = e.target.value; save(); render(); }
+    else if (e.target.id === 'manual') {
+      var n = parseInt(e.target.value, 10);
+      state.manualMin = isNaN(n) ? 0 : Math.max(0, Math.min(60, n));
+      render();
+    }
+  });
+
+  // ---------- 시작 ----------
+  fetch('mock.json', { cache: 'no-store' })
+    .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
+    .then(function (json) { DATA = json; render(); })
+    .catch(function () {
+      $app.innerHTML = '<div class="err">데이터를 불러오지 못했어요.<br>mock.json 파일이 index.html과 같은 곳에 있는지 확인해 주세요. 파일을 더블클릭해서 연 경우에는 데이터가 읽히지 않으니, 배포 주소로 열어 주세요.</div>';
+    });
+})();
+</script>
 </body>
 </html>
